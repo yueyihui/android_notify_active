@@ -1,0 +1,36 @@
+From 0506e1651bba455e93f2153f150bc6216f2da93f Mon Sep 17 00:00:00 2001
+From: "Yue, Liang" <liang.yue@cienet.com.cn>
+Date: Fri, 28 Jul 2017 17:26:04 +0800
+Subject: [PATCH 2/3] active event and eth dhcp disable
+
+---
+ .../core/java/com/android/server/power/PowerManagerService.java     | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/frameworks/base/services/core/java/com/android/server/power/PowerManagerService.java b/frameworks/base/services/core/java/com/android/server/power/PowerManagerService.java
+index b6a1cf5..95c5a0a 100755
+--- a/frameworks/base/services/core/java/com/android/server/power/PowerManagerService.java
++++ b/frameworks/base/services/core/java/com/android/server/power/PowerManagerService.java
+@@ -1012,6 +1012,8 @@ public final class PowerManagerService extends SystemService
+                 Slog.d(TAG, "user active, start compute timeout");
+                 mHandler.removeMessages(MSG_NOTIFY_ACTIVITY_TIMEOUT);
+                 mHandler.sendEmptyMessageDelayed(MSG_NOTIFY_ACTIVITY_TIMEOUT, 30 * 1000);
++                Intent intent = new Intent("com.example.lock.NOTIFY_ACTIVITY_TIMEOUT");
++                mContext.sendBroadcast(intent);
+             }
+         }
+     }
+@@ -2840,8 +2842,8 @@ public final class PowerManagerService extends SystemService
+                     break;
+                 case MSG_NOTIFY_ACTIVITY_TIMEOUT: {
+                     Slog.d(TAG,"MSG_NOTIFY_ACTIVITY_TIMEOUT");
+-                    Intent intent = new Intent("com.example.lock.NOTIFY_ACTIVITY_TIMEOUT");
+-                    mContext.sendBroadcast(intent);
++                    /*Intent intent = new Intent("com.example.lock.NOTIFY_ACTIVITY_TIMEOUT");
++                    mContext.sendBroadcast(intent);*/
+                 }
+                     break;
+             }
+-- 
+1.9.1
+

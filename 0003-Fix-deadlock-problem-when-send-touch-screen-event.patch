@@ -1,0 +1,56 @@
+From a90bf1f14aaa56443ae8a1ffb94dbadb96cf7eba Mon Sep 17 00:00:00 2001
+From: "Yue, Liang" <liang.yue@cienet.com.cn>
+Date: Mon, 31 Jul 2017 16:54:06 +0800
+Subject: [PATCH 3/3] Fix deadlock problem when send touch screen event
+
+---
+ .../android/server/power/PowerManagerService.java  | 26 +++++++++++-----------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
+
+diff --git a/frameworks/base/services/core/java/com/android/server/power/PowerManagerService.java b/frameworks/base/services/core/java/com/android/server/power/PowerManagerService.java
+index 95c5a0a..c3480ea 100755
+--- a/frameworks/base/services/core/java/com/android/server/power/PowerManagerService.java
++++ b/frameworks/base/services/core/java/com/android/server/power/PowerManagerService.java
+@@ -615,7 +615,7 @@ public final class PowerManagerService extends SystemService
+             updateSettingsLocked();
+             mDirty |= DIRTY_BATTERY_STATE;
+             updatePowerStateLocked();
+-            mHandler.sendEmptyMessageDelayed(MSG_NOTIFY_ACTIVITY_TIMEOUT, 30 * 1000);
++            //mHandler.sendEmptyMessageDelayed(MSG_NOTIFY_ACTIVITY_TIMEOUT, 30 * 1000);
+         }
+     }
+ 
+@@ -1005,18 +1005,18 @@ public final class PowerManagerService extends SystemService
+         userActivityInternal(eventTime, event, flags, Process.SYSTEM_UID);
+     }
+ 
+-    private void userActivityInternal(long eventTime, int event, int flags, int uid) {
+-        synchronized (mLock) {
+-            if (userActivityNoUpdateLocked(eventTime, event, flags, uid)) {
+-                updatePowerStateLocked();
+-                Slog.d(TAG, "user active, start compute timeout");
+-                mHandler.removeMessages(MSG_NOTIFY_ACTIVITY_TIMEOUT);
+-                mHandler.sendEmptyMessageDelayed(MSG_NOTIFY_ACTIVITY_TIMEOUT, 30 * 1000);
+-                Intent intent = new Intent("com.example.lock.NOTIFY_ACTIVITY_TIMEOUT");
+-                mContext.sendBroadcast(intent);
+-            }
+-        }
+-    }
++	private void userActivityInternal(long eventTime, int event, int flags, int uid) {
++		synchronized (mLock) {
++			if (userActivityNoUpdateLocked(eventTime, event, flags, uid)) {
++				updatePowerStateLocked();
++			}
++		}
++		//Slog.d(TAG, "user active, start compute timeout");
++		//mHandler.removeMessages(MSG_NOTIFY_ACTIVITY_TIMEOUT);
++		//mHandler.sendEmptyMessageDelayed(MSG_NOTIFY_ACTIVITY_TIMEOUT, 30 * 1000);
++		Intent intent = new Intent("com.example.lock.NOTIFY_ACTIVITY_TIMEOUT");
++		mContext.sendBroadcast(intent);
++	}
+ 
+     private boolean userActivityNoUpdateLocked(long eventTime, int event, int flags, int uid) {
+         if (DEBUG_SPEW) {
+-- 
+1.9.1
+
